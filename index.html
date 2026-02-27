@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zambia Grade 7 Revision Portal</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Favicon – replace with your actual files -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#00853f">
+
+    <style>
+        :root {
+            --green: #00853f;
+            --orange: #ef7d00;
+            --red: #ce1126;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 680px;
+            margin: 20px auto;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        .hidden { display: none !important; }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        #error-box, #code-error {
+            background: #ffebee;
+            color: var(--red);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 12px 0;
+            border: 1px solid #ffcdd2;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background 0.15s;
+        }
+        button:hover { background: #006d33; }
+
+        .menu-btn { background: var(--orange); }
+        .menu-btn:hover { background: #d66e00; }
+        .finish-btn { background: var(--orange); }
+
+        .q-card {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 5px solid var(--orange);
+        }
+        .q-text {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+            font-size: 1.05em;
+        }
+        label {
+            display: block;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 4px 0;
+        }
+        label:hover { background: #f0f4ff; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+
+        .points-display {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 1.05em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--orange);
+            text-align: center;
+            margin: 12px 0 20px;
+        }
+        .timer.warning { color: var(--red); animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .dashboard-grid > div .points {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--green);
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .leaderboard-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .leaderboard-table tr:hover { background: #f0f4ff; }
+
+        .footer-credit {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 20px;
+            font-size: 14px;
+            color: #555;
+            border-top: 1px solid #eee;
+        }
+        .footer-credit a {
+            color: var(--green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-credit a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div id="global-points" class="points-display hidden">Points: 0 / 900</div>
+
+<div id="login-screen" class="container">
+    <div class="header">
+        <i class="bi bi-patch-question" style="font-size: 64px; color: var(--green);"></i>
+        <h2>ECZ Revision Portal</h2>
+        <p>Login with your Pupil Name</p>
+    </div>
+
+    <div id="error-box">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span id="error-msg">Unknown Username</span>
+    </div>
+
+    <div id="code-error">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span id="code-msg">Wrong code</span>
+    </div>
+
+    <input type="text" id="username-input" placeholder="Enter Name (e.g., Shimba)" autocomplete="off">
+
+    <div id="code-container" class="hidden">
+        <input type="password" id="code-input" placeholder="Enter code" autocomplete="off">
+    </div>
+
+    <button onclick="attemptLogin()">Start Studying</button>
+</div>
+
+<div id="menu-screen" class="container hidden">
+    <div class="header">
+        <i class="bi bi-patch-question" style="font-size: 52px; color: var(--green);"></i>
+        <h2>Welcome, <span id="pupil-name-menu"></span>!</h2>
+    </div>
+    <button onclick="showSubjectSelection()">Start Test</button>
+    <button class="menu-btn" onclick="showDashboard()">View Dashboard</button>
+    <button class="menu-btn" onclick="showLeaderboard()">Leaderboard</button>
+    <button class="menu-btn" style="background:#555;" onclick="location.reload()">Logout</button>
+</div>
+
+<div id="subject-selection" class="container hidden">
+    <h2 style="text-align:center; margin-bottom:24px;">Select Subject to Test</h2>
+    <button onclick="startTest('social')">Social Studies</button>
+    <button onclick="startTest('science')">Science</button>
+    <button onclick="startTest('maths')">Mathematics</button>
+    <button style="background:#666; margin-top:16px;" onclick="backToMenu()">Back to Menu</button>
+</div>
+
+<div id="test-screen" class="container hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-weight:600;">Testing: <span id="current-subject-name"></span></div>
+        <i class="bi bi-patch-question" style="font-size:28px; color:var(--green);"></i>
+    </div>
+    <div id="timer-display" class="timer">Time left: 15:00</div>
+    <div id="questions-container"></div>
+    <button class="finish-btn" onclick="finishSubjectTest()">Finish Subject Test</button>
+</div>
+
+<div id="dashboard-screen" class="container hidden">
+    <div class="header">
+        <h2>Dashboard – <span id="pupil-name-dash"></span></h2>
+    </div>
+    <div class="dashboard-grid">
+        <div>
+            <div>Social Studies</div>
+            <div class="points"><span id="points-social">0</span>/300</div>
+        </div>
+        <div>
+            <div>Science</div>
+            <div class="points"><span id="points-science">0</span>/300</div>
+        </div>
+        <div>
+            <div>Mathematics</div>
+            <div class="points"><span id="points-maths">0</span>/300</div>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top:24px;">
+            <div style="font-size:1.3em; font-weight:600;">Total Points</div>
+            <div class="points" style="font-size:2em;"><span id="points-total">0</span>/900</div>
+            <div id="percentage" style="font-size:1.4em; color:var(--orange); margin-top:8px;"></div>
+        </div>
+    </div>
+    <button style="margin-top:32px;" onclick="backToMenu()">Back to Menu</button>
+</div>
+
+<div id="leaderboard-screen" class="container hidden">
+    <div class="header">
+        <h2>Global Leaderboard</h2>
+        <p>Top pupils by total points (updated live)</p>
+    </div>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Points</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+    </table>
+    <button style="margin-top:32px;" onclick="backToMenu()">Back to Menu</button>
+</div>
+
+<div class="footer-credit hidden" id="footer-credit">
+    Made by Chishimba<br>
+    Contact: <a href="mailto:hjsackmba@gmail.com">hjsackmba@gmail.com</a>
+</div>
+
+<script>
+    // Users + john code logic
+    const users = [
+        "john", "zaza", "shimba", "kaputo",
+        "ayaat", "dorothy", "christian may", "tatenda", "bupe",
+        "guliana", "constance", "joshua", "kutemwa", "elijah", "yande"
+    ];
+
+    const SPECIAL_USER = "john";
+    const SECRET_CODE = "pass";
+
+    let currentUser = "";
+    let scores = { social: 0, science: 0, maths: 0 };
+    let currentSubject = '';
+    let timerInterval = null;
+    let timeLeft = 900;
+
+    const questions = {
+        social: [
+            { q: "1. Who was the first President of Zambia?", opts: ["Levy Mwanawasa", "Kenneth Kaunda", "Frederick Chiluba"], correct: 1 },
+            { q: "2. Which river forms the Victoria Falls?", opts: ["Zambezi", "Kafue", "Luapula"], correct: 0 },
+            { q: "3. How many provinces are there in Zambia?", opts: ["9", "10", "8"], correct: 1 },
+            { q: "4. The \"Three Organs of Government\" are the Executive, Judiciary and...?", opts: ["Legislature", "Police", "Church"], correct: 0 },
+            { q: "5. What is the capital city of Zambia?", opts: ["Ndola", "Lusaka", "Livingstone"], correct: 1 },
+            { q: "6. When did Zambia gain independence?", opts: ["24th Oct 1964", "24th Oct 1960"], correct: 0 },
+            { q: "7. Which mineral is mostly mined in the Copperbelt?", opts: ["Copper", "Gold"], correct: 0 },
+            { q: "8. A person who dies for their country is a...?", opts: ["Martyr", "Traitor"], correct: 0 },
+            { q: "9. Which bird is found on the Zambian Flag?", opts: ["Fish Eagle", "Owl"], correct: 0 },
+            { q: "10. What color on the flag represents our natural resources?", opts: ["Green", "Orange"], correct: 0 },
+            { q: "11. Who is known as the 'Father of Zambian Independence'?", opts: ["Harry Nkumbula", "Kenneth Kaunda", "Simon Kapwepwe"], correct: 1 },
+            { q: "12. Which Zambian town is famous for its hot springs?", opts: ["Kapiri Mposhi", "Choma", "Kaputa"], correct: 2 },
+            { q: "13. What is the national animal of Zambia?", opts: ["Lion", "Leopard", "Elephant"], correct: 0 },
+            { q: "14. In which year was the Barotse Agreement signed?", opts: ["1964", "1900", "1924"], correct: 1 },
+            { q: "15. Which province is home to the Kafue National Park?", opts: ["Southern", "Central", "North-Western"], correct: 0 },
+            { q: "16. Who was Zambia's second Republican President?", opts: ["Frederick Chiluba", "Levy Mwanawasa", "Edgar Lungu"], correct: 0 },
+            { q: "17. What is the traditional name for the Lozi king?", opts: ["Litunga", "Chitimukulu", "Ngambela"], correct: 0 },
+            { q: "18. Which Zambian leader led the independence struggle from prison?", opts: ["Kenneth Kaunda", "Harry Nkumbula", "Sikota Wina"], correct: 0 },
+            { q: "19. What is the main language spoken in Eastern Province?", opts: ["Nyanja", "Bemba", "Lozi"], correct: 0 },
+            { q: "20. Which year did Zambia become a multi-party democracy again?", opts: ["1991", "1964", "1973"], correct: 0 },
+            { q: "21. Which river is the longest in Zambia?", opts: ["Kafue", "Zambezi", "Luangwa"], correct: 1 },
+            { q: "22. What is the currency of Zambia?", opts: ["Kwacha", "Shilling", "Pula"], correct: 0 },
+            { q: "23. Who was the first female Vice President of Zambia?", opts: ["Inonge Wina", "Edith Nawakwi", "Christina Kaseba"], correct: 0 },
+            { q: "24. Which national park is known for walking safaris?", opts: ["South Luangwa", "Lower Zambezi", "Kasanka"], correct: 0 },
+            { q: "25. What is celebrated on October 24th in Zambia?", opts: ["Heroes Day", "Independence Day", "Unity Day"], correct: 1 },
+            { q: "26. Which province has the most districts in Zambia?", opts: ["Copperbelt", "Southern", "Lusaka"], correct: 0 },
+            { q: "27. What is the name of Zambia's national anthem?", opts: ["Stand and Sing of Zambia Proud", "God Bless Zambia", "Arise Zambia"], correct: 0 },
+            { q: "28. Which Zambian town is known as the tourist capital?", opts: ["Livingstone", "Ndola", "Kitwe"], correct: 0 },
+            { q: "29. Who founded UNIP (United National Independence Party)?", opts: ["Kenneth Kaunda", "Harry Nkumbula", "Simon Kapwepwe"], correct: 0 },
+            { q: "30. Which color on the Zambian flag represents the struggle for freedom?", opts: ["Red", "Black", "Orange"], correct: 0 }
+        ],
+        science: [
+            { q: "1. What do humans breathe out?", opts: ["Carbon Dioxide", "Oxygen"], correct: 0 },
+            { q: "2. Which part of the plant absorbs water?", opts: ["Roots", "Leaves"], correct: 0 },
+            { q: "3. Boiling point of pure water is?", opts: ["100°C", "0°C"], correct: 0 },
+            { q: "4. Which planet is closest to the Sun?", opts: ["Mercury", "Earth"], correct: 0 },
+            { q: "5. Malaria is spread by...?", opts: ["Mosquitoes", "Houseflies"], correct: 0 },
+            { q: "6. A person who studies living things is a...?", opts: ["Biologist", "Chemist"], correct: 0 },
+            { q: "7. Which state of matter has a fixed shape?", opts: ["Solid", "Gas"], correct: 0 },
+            { q: "8. The female part of a flower is the...?", opts: ["Pistil/Carpel", "Stamen"], correct: 0 },
+            { q: "9. Which organ pumps blood?", opts: ["Heart", "Lungs"], correct: 0 },
+            { q: "10. Energy from the sun is called?", opts: ["Solar Energy", "Wind Energy"], correct: 0 },
+            { q: "11. What gas do plants use to make food during photosynthesis?", opts: ["Oxygen", "Carbon Dioxide", "Nitrogen"], correct: 1 },
+            { q: "12. Which part of the eye controls the amount of light entering?", opts: ["Retina", "Iris", "Cornea"], correct: 1 },
+            { q: "13. What is the main source of energy for Earth's climate system?", opts: ["Moon", "Sun", "Earth's core"], correct: 1 },
+            { q: "14. Which blood cells help fight infections?", opts: ["Red blood cells", "White blood cells", "Platelets"], correct: 1 },
+            { q: "15. What is the hardest naturally occurring substance known?", opts: ["Gold", "Diamond", "Iron"], correct: 1 },
+            { q: "16. Which organ filters waste from the blood?", opts: ["Liver", "Kidney", "Lung"], correct: 1 },
+            { q: "17. What do we call animals that eat both plants and meat?", opts: ["Herbivores", "Carnivores", "Omnivores"], correct: 2 },
+            { q: "18. Which layer of the atmosphere protects us from harmful UV rays?", opts: ["Troposphere", "Ozone layer", "Stratosphere"], correct: 1 },
+            { q: "19. What is the boiling point of water in Kelvin?", opts: ["273 K", "373 K", "100 K"], correct: 1 },
+            { q: "20. Which vitamin is produced when the skin is exposed to sunlight?", opts: ["Vitamin A", "Vitamin C", "Vitamin D"], correct: 2 },
+            { q: "21. What is the main gas in the air we breathe?", opts: ["Oxygen", "Nitrogen", "Carbon dioxide"], correct: 1 },
+            { q: "22. Which part of a plant makes food?", opts: ["Roots", "Leaves", "Stem"], correct: 1 },
+            { q: "23. What do we call the process when water turns into vapour?", opts: ["Evaporation", "Condensation", "Freezing"], correct: 0 },
+            { q: "24. Which organ helps us breathe?", opts: ["Heart", "Lungs", "Stomach"], correct: 1 },
+            { q: "25. What is the smallest unit of life?", opts: ["Atom", "Cell", "Molecule"], correct: 1 },
+            { q: "26. Which force pulls objects towards the Earth?", opts: ["Magnetism", "Gravity", "Friction"], correct: 1 },
+            { q: "27. What do we call animals with backbones?", opts: ["Invertebrates", "Vertebrates", "Mammals"], correct: 1 },
+            { q: "28. Which sense organ helps us hear?", opts: ["Eyes", "Ears", "Nose"], correct: 1 },
+            { q: "29. What is the main source of light during the day?", opts: ["Moon", "Sun", "Stars"], correct: 1 },
+            { q: "30. Which gas do plants give out during photosynthesis?", opts: ["Carbon dioxide", "Oxygen", "Nitrogen"], correct: 1 }
+        ],
+        maths: [
+            { q: "1. Solve: 45 + 55", opts: ["90", "100"], correct: 1 },
+            { q: "2. What is 1/2 as a decimal?", opts: ["0.2", "0.5"], correct: 1 },
+            { q: "3. How many sides does a hexagon have?", opts: ["5", "6"], correct: 1 },
+            { q: "4. Solve: 12 × 4", opts: ["44", "48"], correct: 1 },
+            { q: "5. What is the value of 5 in 1,502?", opts: ["Fifty", "Five hundred"], correct: 1 },
+            { q: "6. A right angle is exactly...?", opts: ["180°", "90°"], correct: 1 },
+            { q: "7. Round 4.7 to the nearest whole number.", opts: ["4", "5"], correct: 1 },
+            { q: "8. 10% of 200 is?", opts: ["2", "20"], correct: 1 },
+            { q: "9. Perimeter of a square with 3cm side?", opts: ["9cm", "12cm"], correct: 1 },
+            { q: "10. 1000g is equal to?", opts: ["10kg", "1kg"], correct: 1 },
+            { q: "11. What is 25% of 80?", opts: ["15", "20", "25"], correct: 1 },
+            { q: "12. How many millilitres are in 2 litres?", opts: ["200", "2000", "20"], correct: 1 },
+            { q: "13. What is the next number in the pattern: 2, 4, 8, 16, ...?", opts: ["20", "32", "24"], correct: 1 },
+            { q: "14. What is 7 × 8?", opts: ["54", "56", "64"], correct: 1 },
+            { q: "15. How many minutes are in 3 hours?", opts: ["180", "120", "240"], correct: 0 },
+            { q: "16. What is the perimeter of a rectangle 6 cm long and 4 cm wide?", opts: ["20 cm", "24 cm", "10 cm"], correct: 0 },
+            { q: "17. Which is bigger: 0.75 or ¾?", opts: ["0.75", "¾", "They are equal"], correct: 2 },
+            { q: "18. What is 144 ÷ 12?", opts: ["11", "12", "14"], correct: 1 },
+            { q: "19. How many sides does an octagon have?", opts: ["6", "8", "10"], correct: 1 },
+            { q: "20. If 3 books cost 90 Kwacha, how much do 5 books cost?", opts: ["120 Kwacha", "150 Kwacha", "180 Kwacha"], correct: 1 },
+            { q: "21. What is 50 + 75?", opts: ["115", "125", "135"], correct: 1 },
+            { q: "22. How many centimetres are in 1 metre?", opts: ["10", "100", "1000"], correct: 1 },
+            { q: "23. What is half of 48?", opts: ["20", "24", "28"], correct: 1 },
+            { q: "24. What is the value of 8 in 3,852?", opts: ["Eight", "Eighty", "Eight hundred"], correct: 1 },
+            { q: "25. How many days are in 3 weeks?", opts: ["14", "21", "28"], correct: 1 },
+            { q: "26. What is 9 × 9?", opts: ["72", "81", "90"], correct: 1 },
+            { q: "27. What shape has 4 equal sides and 4 right angles?", opts: ["Triangle", "Square", "Circle"], correct: 1 },
+            { q: "28. What is 200 − 125?", opts: ["65", "75", "85"], correct: 1 },
+            { q: "29. How many hours are in 2 days?", opts: ["24", "36", "48"], correct: 2 },
+            { q: "30. If 1 kg = 1000 g, how many grams are in 2.5 kg?", opts: ["2000 g", "2500 g", "3000 g"], correct: 1 }
+        ]
+    };
+
+    function attemptLogin() {
+        const usernameInput = document.getElementById('username-input');
+        const codeInput = document.getElementById('code-input');
+        const codeContainer = document.getElementById('code-container');
+        const errorBox = document.getElementById('error-box');
+        const codeError = document.getElementById('code-error');
+
+        const name = usernameInput.value.trim().toLowerCase();
+
+        errorBox.style.display = 'none';
+        codeError.style.display = 'none';
+
+        if (!users.includes(name)) {
+            errorBox.style.display = 'flex';
+            return;
+        }
+
+        if (name === SPECIAL_USER) {
+            codeContainer.classList.remove('hidden');
+
+            const code = codeInput.value.trim();
+            if (code) {
+                if (code === SECRET_CODE) {
+                    proceedLogin(name);
+                } else {
+                    codeError.querySelector('#code-msg').textContent = "Wrong code – try again";
+                    codeError.style.display = 'flex';
+                }
+            }
+            return;
+        }
+
+        proceedLogin(name);
+    }
+
+    function proceedLogin(rawName) {
+        currentUser = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        loadScores();
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('menu-screen').classList.remove('hidden');
+        document.getElementById('pupil-name-menu').textContent = currentUser;
+        document.getElementById('pupil-name-dash').textContent = currentUser;
+        document.getElementById('footer-credit').classList.remove('hidden');
+        document.getElementById('global-points').classList.remove('hidden');
+
+        updateDashboard();
+        updateGlobalPoints();
+    }
+
+    document.getElementById('username-input').addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        const codeContainer = document.getElementById('code-container');
+        const codeInput = document.getElementById('code-input');
+
+        if (val === SPECIAL_USER) {
+            codeContainer.classList.remove('hidden');
+        } else {
+            codeContainer.classList.add('hidden');
+            codeInput.value = '';
+            document.getElementById('code-error').style.display = 'none';
+        }
+    });
+
+    function loadScores() {
+        const saved = localStorage.getItem('ec7QuizScores');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                scores.social = Number(parsed.social) || 0;
+                scores.science = Number(parsed.science) || 0;
+                scores.maths = Number(parsed.maths) || 0;
+            } catch {}
+        }
+    }
+
+    function saveScores() {
+        localStorage.setItem('ec7QuizScores', JSON.stringify(scores));
+    }
+
+    const API_BASE = '/api/leaderboard';
+
+    async function saveToLeaderboard() {
+        const total = scores.social + scores.science + scores.maths;
+        if (total <= 0) return;
+
+        try {
+            await fetch(API_BASE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: currentUser,
+                    points: total
+                })
+            });
+        } catch (err) {
+            console.error('Leaderboard save failed', err);
+        }
+    }
+
+    async function loadLeaderboard() {
+        try {
+            const res = await fetch(API_BASE);
+            if (res.ok) {
+                const data = await res.json();
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
+
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.points}</td>
+                        <td>${new Date(entry.last_updated).toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                console.error('Leaderboard fetch failed:', res.status);
+            }
+        } catch (err) {
+            console.error('Leaderboard load failed', err);
+        }
+    }
+
+    function showLeaderboard() {
+        hideAllScreens();
+        document.getElementById('leaderboard-screen').classList.remove('hidden');
+        loadLeaderboard();
+    }
+
+    function showSubjectSelection() {
+        hideAllScreens();
+        document.getElementById('subject-selection').classList.remove('hidden');
+    }
+
+    function backToMenu() {
+        if (timerInterval) clearInterval(timerInterval);
+        hideAllScreens();
+        document.getElementById('menu-screen').classList.remove('hidden');
+    }
+
+    function hideAllScreens() {
+        document.querySelectorAll('.container:not(#login-screen)').forEach(el => el.classList.add('hidden'));
+    }
+
+    function startTest(subject) {
+        hideAllScreens();
+        document.getElementById('test-screen').classList.remove('hidden');
+        document.getElementById('current-subject-name').textContent = subject.charAt(0).toUpperCase() + subject.slice(1);
+        currentSubject = subject;
+        timeLeft = 900;
+        updateTimerDisplay();
+        startTimer();
+
+        const container = document.getElementById('questions-container');
+        container.innerHTML = '';
+
+        questions[subject].forEach((qItem, i) => {
+            const card = document.createElement('div');
+            card.className = 'q-card';
+            card.innerHTML = `<span class="q-text">${qItem.q}</span>`;
+
+            qItem.opts.forEach((opt, idx) => {
+                card.innerHTML += `
+                    <label>
+                        <input type="radio" name="q${i}" value="${idx}">
+                        ${opt}
+                    </label>`;
+            });
+
+            container.appendChild(card);
+        });
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                alert("Time's up!");
+                finishSubjectTest(true);
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        const m = minutes.toString().padStart(2, '0');
+        const s = seconds.toString().padStart(2, '0');
+        const el = document.getElementById('timer-display');
+        el.textContent = `Time left: ${m}:${s}`;
+        el.classList.toggle('warning', timeLeft <= 120);
+    }
+
+    function finishSubjectTest(timeout = false) {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        let correct = 0;
+        const qList = questions[currentSubject];
+        qList.forEach((q, i) => {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && Number(selected.value) === q.correct) correct++;
+        });
+
+        scores[currentSubject] = correct * 10;
+
+        const msg = timeout
+            ? `Time's up!\nYou got ${correct}/30 correct.\nPoints earned: ${scores[currentSubject]}`
+            : `Finished!\nYou got ${correct}/30 correct.\nPoints earned: ${scores[currentSubject]}`;
+
+        alert(msg);
+
+        saveScores();
+        saveToLeaderboard();
+        backToMenu();
+        updateDashboard();
+        updateGlobalPoints();
+    }
+
+    function updateGlobalPoints() {
+        const total = scores.social + scores.science + scores.maths;
+        document.getElementById('global-points').textContent = `Points: ${total} / 900`;
+    }
+
+    function showDashboard() {
+        hideAllScreens();
+        document.getElementById('dashboard-screen').classList.remove('hidden');
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        const total = scores.social + scores.science + scores.maths;
+        document.getElementById('points-social').textContent = scores.social;
+        document.getElementById('points-science').textContent = scores.science;
+        document.getElementById('points-maths').textContent = scores.maths;
+        document.getElementById('points-total').textContent = total;
+
+        const perc = total ? Math.round((total / 900) * 100) : 0;
+        document.getElementById('percentage').textContent =
+            `${perc}% – ${perc >= 80 ? 'Excellent! Ready for ECZ 🚀' :
+                          perc >= 50 ? 'Good effort – keep going!' :
+                          'Great start – practice more!'}`;
+    }
+</script>
+</body>
+</html>
